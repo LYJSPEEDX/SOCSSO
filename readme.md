@@ -16,3 +16,4 @@
 
 **必须仔细阅读，因为项目系统不配备指令集的检验过程，非法的指令集将可能引发不可恢复的严重错误！**
 
+[WIKI跳转](http://dev.itrclub.com/LYJSpeedX/SOCSSO/wiki/_pages)
