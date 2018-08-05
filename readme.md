@@ -36,11 +36,30 @@ token为登录时CUS生成的token
 在收到客户端的指令后，CUS会进行一系列的验证，其中会广播三种结果
 新登录成功：
 ```
-
+{
+    "type":"token_add",
+    "cur_token":"CUR_TOKEN",  //CUS生成的token
+    "options":{               //保存在CUS的用户个性化、非关键信息
+        "isvip":false,
+        "sex":"male",
+        "email":"xx@socsso.com",
+        "phone":"00000000000"
+    }
+}
 ```
 同一用户，需要覆盖登陆：
 ```
-
+{
+    "type":"token_overwrite",
+    "ex_token":"EX_TOKEN",    //需要覆盖的token
+    "cur_token":"CUR_TOKEN",  //CUS新生成的token
+    "detail":{                //保存在CUS的用户个性化、非关键信息
+        "isvip":false,
+        "sex":"male",
+        "email":"xx@socsso.com",
+        "phone":"00000000000"
+    }
+}
 ```
 用户名或密码检验失败：
 其中username为提交的username
