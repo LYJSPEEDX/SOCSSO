@@ -64,7 +64,10 @@ token为登录时CUS生成的token
 用户名或密码检验失败：
 其中username为提交的username
 ```
-
+{
+    "type":"user_rejection",
+    "username":"USERNAME"          //返回的是提交登陆时的username
+}
 ```
 ###### 登出
 在收到客户端的指令后，CUS会进行一系列的验证，其中会广播两种结果
