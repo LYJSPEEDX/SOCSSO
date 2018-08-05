@@ -14,7 +14,7 @@ $config = [
 	"socketport" => 23345,
 	"dbhost" => "127.0.0.1",
 	"dbusername" => "root",
-	"dbpassword" => "81082936Jun",
+	"dbpassword" => "",
 	"dbname" => "itrsso_cus"
 ];
 
