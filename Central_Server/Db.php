@@ -85,7 +85,7 @@ class Db{
 				break;
 			case '1':
 				$this -> db -> exec("UPDATE temp_token SET token = '{$cur_token}' WHERE uid = '{$dbuser['uid']}'");
-				$send_task = json_encode(["type" => "token_overwrite","ex_token" => $ex_token,"cur_token" => $cur_token,"detail" => $dbuser['options']]);
+				$send_task = json_encode(["type" => "token_overwrite","ex_token" => $ex_token,"cur_token" => $cur_token,"options" => json_decode($dbuser['options'])]);
 				break;
 			case '2':
 				$this -> db -> exec("INSERT INTO temp_token (token,uid) VALUES ('{$cur_token}','{$dbuser['uid']}')");
@@ -107,7 +107,6 @@ class Db{
 		if ($check == 0) {
 			$status = 0;
 		}else{
-			$check = $check -> fetchColumn();
 			$status = 1;
 		}
 		
