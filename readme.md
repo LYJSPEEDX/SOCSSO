@@ -65,7 +65,7 @@ token为登录时CUS生成的token
 ```
 {
     "type":"user_rejection",
-    "username":"USERNAME"      //返回的是**提交登陆时的username**
+    "username":"USERNAME",     //返回的是**提交登陆时的username**
 }
 ```
 ###### 登出
