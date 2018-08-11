@@ -12,7 +12,7 @@
 * 低耦合客户端调用方式，**开发者只需要考虑调用函数，无需关心实现方式**，简单接入，功能强大
 
 ## 原理图
-![](http://dev.itrclub.com/LYJSpeedX/PR/raw/master/SOCSSO%E5%8E%9F%E7%90%86%E5%9B%BE.jpg)
+![](https://s1.ax1x.com/2018/08/11/PcVtbj.jpg)
 
 ## 目录&模块
 * Central_server 为**用户中心服务器CUS**，管理用户核心资料和生态群用户状态监听、广播等事务，只需要运行于php-cli，配置好数据库即可轻松创建CUS进程
