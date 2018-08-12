@@ -81,6 +81,7 @@ class SSOC{
 
 	/**
 	* 获取用户特定信息,返回string或array
+	* 该函数只是get_userinfo_all的格式化函数
 	* @param string $user_param username/uid类型
 	* @param string $data 需要特定获取的字段,有username/uid/credit/options
 	* @param [boolean] $is_request=false 假若用户没登录(缓存数据库user表找不到数据),是否允许向CUS请求
