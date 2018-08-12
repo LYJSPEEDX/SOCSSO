@@ -65,20 +65,43 @@ abstract class CUS{
 	/**
 	 * 单独发送callback指令给特定客户端
 	 * @WARNING 必须在每个可能影响用户交互的指令处理后,执行该函数,回调给客户端
+     * 允许单独发送data数据
 	 * @param int $fd 需要发送的客户端标识符
 	 * @param string $username 需要callback的用户名
 	 * @param string $result 结果字符串
+	 * @param [string/array] $data 字符串/数组形式的数据
 	 **/
-	function send_callback($fd,$username,$result){
+	function send_callback($fd,$username,$result,$data = null){
 		//当$fd = 0 ,表示该任务是由人工创建的,无需发送回调
 		if ($fd != 0){
-			$data = json_encode(["type" => "callback_handle","username" => $username,"result" => $result]);
-			$data = $data . "\r\n";
-			$this -> pipe -> send($fd,$data);
-			$this -> log_info("[回调]指令处理完成,发送给[$fd]客户端,内容:{$data}");
+			if (!isset($data)) $task = json_encode(["type" => "callback_handle","username" => $username,"result" => $result]);
+			if (isset($data)) $task = json_encode(["type" => "callback_handle","username" => $username,"result" => $result,"data" => $data]);
+			$task = $task . "\r\n";
+			$this -> pipe -> send($fd,$task);
+			$this -> log_info("[回调]指令处理完成,发送给[$fd]客户端,内容:{$task}");
 		}else{
 			$this -> log_info("[回调]指令处理完成,无需回调,细节为{$username} {$result}");
 		}
+	}
+
+	/**
+	* 注册逻辑
+	* username 不可重复
+	* @param string $task 指令字符串
+	**/
+	function register($task){
+		$check = $this -> db -> query("SELECT COUNT(*) FROM user WHERE username = '{$task['username']}'");
+		$check = $check -> fetchColumn();
+		if ($check != 0) {
+			//表示用户已经注册,username重复
+			$this -> send_callback($task['fd'],$task['username'],'register_fail','username_repeated');
+			return false;
+		}
+		//options可能为一个空数组,强制编码为json_object
+		$options = json_encode($task['options'],JSON_FORCE_OBJECT);
+		$this -> db -> exec("INSERT INTO user (username,password,nickname,credit,options) VALUES ('{$task['username']}','{$task['password']}','{$task['nickname']}','{$task['credit']}','{$options}')");
+		$this -> send_callback($task['fd'],$task['username'],'register_success','call_login');
+		$this -> login($task);
 	}
 
 	/**
@@ -117,13 +140,15 @@ abstract class CUS{
 				break;
 			case '1':
 				$result = 'login_success';
+				$this -> db -> exec("UPDATE user SET last_login = 'NOW()' WHERE username ='{$dbuser['username']}'");
 				$this -> db -> exec("UPDATE temp_token SET token = '{$cur_token}' WHERE username = '{$dbuser['username']}'");
 				$send_task = json_encode(["type" => "token_overwrite","username" => $dbuser['username'],"ex_token" => $ex_token,"cur_token" => $cur_token]);
 				break;
 			case '2':
 				$result = 'login_success';
+				$this -> db -> exec("UPDATE user SET last_login = NOW() WHERE username ='{$dbuser['username']}'");
 				$this -> db -> exec("INSERT INTO temp_token (token,username) VALUES ('{$cur_token}','{$dbuser['username']}')");
-				$send_task = json_encode(["type" => "token_add","cur_token" => $cur_token,"uid" => $dbuser['uid'],"username" => $dbuser['username'],"nickname" => $dbuser['nickname'],"credit" => $dbuser['credit'],"options" => json_decode($dbuser['options'])]);
+				$send_task = json_encode(["type" => "token_add","cur_token" => $cur_token,"uid" => $dbuser['uid'],"username" => $dbuser['username'],"nickname" => $dbuser['nickname'],"credit" => $dbuser['credit'],"create_time" => $dbuser['create_time'],"last_login" => $dbuser['last_login'],"update_time" => $dbuser['update_time'],"options" => json_decode($dbuser['options'])]);
 				break;	
 			default:
 				break;
@@ -179,6 +204,14 @@ abstract class CUS{
 	 * @param string $task 指令字符串
 	 **/
 	function edit_userinfo($task){
+		$check = $this -> db -> query("SELECT COUNT(*) FROM user WHERE username = '{$task['username']}'");
+		$check = $check -> fetchColumn();
+		if ($check == 0) {
+			//用户不存在
+			$this -> send_callback($task['fd'],$task['username'],'edit_userinfo_fail','user_not_exist');
+			return false;
+		}
+
 		switch ($task['attribute']) {
 			case 'nickname':
 				$this -> db -> exec("UPDATE user SET nickname = '{$task['data']['nickname']}' WHERE username = '{$task['username']}'");
@@ -223,4 +256,21 @@ abstract class CUS{
 			$this -> log_info('[Task->广播]用户信息修改指令处理完毕,但用户没有登入,不广播!结果指令内容:'.$send_task);
 		}
 	}
+
+	/**
+	* 单独返回用户信息,以callback形式返回
+	* @param string $task 指令字符串
+	**/
+	function get_userinfo_all($task){
+		$dbuser = $this -> db -> query("SELECT * FROM user WHERE username = '{$task['username']}'");
+		$dbuser = $dbuser -> fetch(PDO::FETCH_ASSOC);
+		if ($dbuser == false) {
+			$this -> send_callback($task['fd'],$task['username'],'get_userinfo_all_fail');
+			return false;
+		}
+		$dbuser['options'] = json_decode($dbuser['options'],true);
+		unset($dbuser['password']);
+		$this -> send_callback($task['fd'],$task['username'],'get_userinfo_all_success',$dbuser);
+	}
+
 }

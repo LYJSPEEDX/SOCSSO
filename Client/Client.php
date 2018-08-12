@@ -64,7 +64,13 @@ abstract class Client{
 	* @param array $task 解码后的json指令
 	**/
 	function callback_handle($task){
-		$this -> db -> exec("INSERT INTO task_callback (username,result) VALUES ('{$task['username']}','{$task['result']}')");
+		if (!isset($task['data'])) {
+			$this -> db -> exec("INSERT INTO task_callback (username,result) VALUES ('{$task['username']}','{$task['result']}')");
+		}else{
+			//若data为数组,则要将其转为json格式存储
+			if (is_array($task['data'])) $data = json_encode($task['data']); else $data = $task['data'];
+			$this -> db -> exec("INSERT INTO task_callback(username,result,data) VALUES ('{$task['username']}','{$task['result']}','{$data}')");
+		}
 	}
 
 	/**
@@ -90,6 +96,23 @@ abstract class Client{
 	**/
 	function token_delete($task){
 		$this -> db -> exec("DELETE  FROM user WHERE username = '{$task['username']}'");
+	}
+
+	/**
+	* 用户注册
+	* @param array $task 解码后的json指令
+	**/
+	function register($task){
+		if (!($this ->is_json(json_encode($task))) || !isset($task['username']) || !isset($task['nickname']) || !isset($task['password']) || !isset($task['credit']) || !isset($task['options'])){
+			$task['result'] = 'register_fail';
+			$task['data'] = 'syntax_error';
+			$this -> callback_handle($task);
+			$this -> log_error("[Polling_handler]捕捉到指令格式错误,废弃指令".print_r($task,true));
+			return false;
+		}
+		//options可能为一个空数组,强制编码为json_object
+		$data = json_encode($task,JSON_FORCE_OBJECT);
+		$this -> send($data);
 	}
 
 	/**
@@ -180,5 +203,20 @@ abstract class Client{
 				$this -> db -> exec("UPDATE user SET options = '{$dboptions}' WHERE username = '{$task['username']}'");		
 				break;
 		}
+	}
+
+	/**
+	* 用户离线情况,向CUS请求用户信息
+	* @param array $task 解码后的json指令
+	**/
+	function get_userinfo_all($task){
+		if (!isset($task['username'])){
+			$task['result'] = 'get_userinfo_all_fail';
+			$this -> callback_handle($task);
+			$this -> log_error("[Polling_handler]捕捉到指令格式错误,废弃指令,详情:".print_r($task,true));
+			return false;
+		}
+		$data = json_encode($task);
+		$this -> send($data);
 	}
 }

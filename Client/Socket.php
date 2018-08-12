@@ -29,11 +29,15 @@ CREATE TABLE 'sys' ('id' integer,'variables' text,'value' text,PRIMARY KEY ('id'
 INSERT INTO sys (variables,value) VALUES ('last_query_id',0);
 INSERT INTO sys (variables,value) VALUES ('last_callback_id',0);
 CREATE TABLE 'task_queue' ('id' integer,'task' text,PRIMARY KEY ('id'));
-CREATE TABLE 'user' ('id' integer,'token' text,'username' text,'nickname' text,'credit' text,'create_time' text,'update_time' text,'last_login' text,'options' text,PRIMARY KEY ('id'));
-CREATE TABLE 'task_callback' ('id' integer,'username' text,'result' text,'detail' text,PRIMARY KEY('id'));
+CREATE TABLE 'user' ('id' integer,'token' text,'username' text COLLATE NOCASE,'nickname' text,'credit' text,'create_time' text,'update_time' text,'last_login' text,'options' text,PRIMARY KEY ('id'));
+CREATE TABLE 'task_callback' ('id' integer,'username' text COLLATE NOCASE,'result' text,'data' text,PRIMARY KEY('id'));
 SQL;
 			$this -> db -> exec($initsql);
-		}else $this -> log_info("[Client]数据库完成载入");
+		}else {
+			//$this -> db -> exec("TRUNCATE TABLE task_callback");
+			//$this -> db -> exec("UPDATE sys SET value = '0' WHERE variables = 'last_callback_id'");
+			$this -> log_info("[Client]数据库完成载入");
+		}
 		//==========初始化数据库连接完毕=================
 		$this -> pipe = new swoole_client(SWOOLE_SOCK_TCP, SWOOLE_SOCK_ASYNC);
 		$this -> pipe ->set([
