@@ -6,16 +6,16 @@
  **/
 
 class Socket extends Client{
-	function __construct($config){
-		$this -> log_info("[Client]初始化开始,CUS信息:{$config['CUS_host']}:{$config['CUS_port']},SQLite信息:{$config['sqlitefilename']}");
+	function __construct(){
+		$this -> log_info("[Client]初始化开始,CUS信息: ".CONFIG['CUS_host'].":".CONFIG['CUS_port']." SQLite信息:".CONFIG['sqlite_db_path']);
 		//==========初始化数据库连接=================
-		if (file_exists($config['sqlitefilename'])){
+		if (file_exists(CONFIG['sqlite_db_path'])){
 			$isinit = false;
 		}else{
 			$isinit = true;
 		}	
 		try{
-			$this -> db = new PDO('sqlite:'.$config['sqlitefilename']);
+			$this -> db = new PDO('sqlite:'.CONFIG['sqlite_db_path']);
 			$this -> db -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		}catch(PDOException $e) {
 			$this -> log_error('[Client]数据库连接/创建失败:' . $e->getMessage());
@@ -29,7 +29,7 @@ CREATE TABLE 'sys' ('id' integer,'variables' text,'value' text,PRIMARY KEY ('id'
 INSERT INTO sys (variables,value) VALUES ('last_query_id',0);
 INSERT INTO sys (variables,value) VALUES ('last_callback_id',0);
 CREATE TABLE 'task_queue' ('id' integer,'task' text,PRIMARY KEY ('id'));
-CREATE TABLE 'user' ('id' integer,'token' text,'username' text COLLATE NOCASE,'nickname' text,'credit' text,'create_time' text,'update_time' text,'last_login' text,'options' text,PRIMARY KEY ('id'));
+CREATE TABLE 'user' ('uid' integer,'token' text,'username' text COLLATE NOCASE,'nickname' text,'credit' text,'create_time' text,'update_time' text,'last_login' text,'options' text);
 CREATE TABLE 'task_callback' ('id' integer,'username' text COLLATE NOCASE,'result' text,'data' text,PRIMARY KEY('id'));
 SQL;
 			$this -> db -> exec($initsql);
@@ -47,7 +47,7 @@ SQL;
 		$this -> ph = new Polling_handler($this -> db,$this -> pipe);
 
 		//定时轮询任务
-		swoole_timer_tick(1000, function($timer_id){
+		swoole_timer_tick(CONFIG['polling_time'], function($timer_id){
 			$this -> ph -> query_task();
 		});
 
@@ -74,6 +74,6 @@ SQL;
 		});
 
 		$this -> log_info("[Client]初始化操作完成,开始建立套接字连接");
-		$this -> pipe -> connect($config['CUS_host'],$config['CUS_port']);
+		$this -> pipe -> connect(CONFIG['CUS_host'],CONFIG['CUS_port']);
 	}
 }

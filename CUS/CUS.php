@@ -140,7 +140,7 @@ abstract class CUS{
 				break;
 			case '1':
 				$result = 'login_success';
-				$this -> db -> exec("UPDATE user SET last_login = 'NOW()' WHERE username ='{$dbuser['username']}'");
+				$this -> db -> exec("UPDATE user SET last_login = NOW() WHERE username ='{$dbuser['username']}'");
 				$this -> db -> exec("UPDATE temp_token SET token = '{$cur_token}' WHERE username = '{$dbuser['username']}'");
 				$send_task = json_encode(["type" => "token_overwrite","username" => $dbuser['username'],"ex_token" => $ex_token,"cur_token" => $cur_token]);
 				break;
@@ -252,25 +252,34 @@ abstract class CUS{
 		$checklogin = $checklogin -> fetchColumn();
 		if (isset($send_task) && $checklogin > 0) {
 			$this -> send($send_task);
+			var_dump($send_task);
 		}else{
-			$this -> log_info('[Task->广播]用户信息修改指令处理完毕,但用户没有登入,不广播!结果指令内容:'.$send_task);
+			$this -> log_info('[Task->广播]用户信息修改指令处理完毕,但用户没有登入或不符合条件,不广播!结果指令内容:'.$send_task);
 		}
 	}
 
 	/**
 	* 单独返回用户信息,以callback形式返回
+	* 该函数支持uid或username做标识符,
 	* @param string $task 指令字符串
 	**/
 	function get_userinfo_all($task){
-		$dbuser = $this -> db -> query("SELECT * FROM user WHERE username = '{$task['username']}'");
+		if (isset($task['username'])){
+			$user_param = $task['username'];
+			$user_id_type = 'username';
+		}else{
+			$user_param = $task['uid'];
+			$user_id_type = 'uid';
+		}
+		$dbuser = $this -> db -> query("SELECT * FROM user WHERE {$user_id_type} = '{$user_param}'");
 		$dbuser = $dbuser -> fetch(PDO::FETCH_ASSOC);
 		if ($dbuser == false) {
-			$this -> send_callback($task['fd'],$task['username'],'get_userinfo_all_fail');
+			$this -> send_callback($task['fd'],$user_param,'get_userinfo_all_fail');
 			return false;
 		}
 		$dbuser['options'] = json_decode($dbuser['options'],true);
 		unset($dbuser['password']);
-		$this -> send_callback($task['fd'],$task['username'],'get_userinfo_all_success',$dbuser);
+		$this -> send_callback($task['fd'],$user_param,'get_userinfo_all_success',$dbuser);
 	}
 
 }

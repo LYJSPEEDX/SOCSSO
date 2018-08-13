@@ -26,6 +26,10 @@ class Polling_handler extends Client{
 		$task_queue = $task_queue -> fetchall(PDO::FETCH_ASSOC);
 		//处理指令内容
 		for ($x = 0;$x <= ($count-1) ; $x++){
+			if (!($this -> is_json($task_queue[$x]['task']))) {
+				$this -> log_error("[Polling_handler]捕捉到指令格式错误,废弃指令,详情:".print_r($task,true));
+				return false;
+			}
 			$task = json_decode($task_queue[$x]['task'],true);
 			$call_function = $task['type'];
 			$this -> log_info("[Polling_handler]处理指令,调用:{$call_function}");
