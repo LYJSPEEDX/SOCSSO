@@ -1,7 +1,7 @@
 # SOCSSO
 ### A socket based SSO solution designed for ITRClub Tech ORG
 
-这是一款后端间基于socket通信的中心化指令集的异步实时SSO用户管理侧系统
+这是一款后端间基于socket通信的中心化指令集的异步实时SSO用户管理侧系统，为ITRClub技术集团开发
 
 ## 功能与特征
 * **统一生态群内所有系统的所有用户状态**(登陆/注销/覆盖登陆/超时登出等)
@@ -9,40 +9,52 @@
 * 基于swoole异步通信框架，双向socket通信管道
 * 多线程、多进程，稳健、低占用的进程架构
 * 中心化用户服务器，依托中心化且全局的检验机制，规避风险
-* 低耦合客户端调用方式，**开发者只需要考虑调用函数，无需关心实现方式**，简单接入，功能强大
+* 低耦合子系统调用方式，**开发者只需要考虑调用函数，无需关心实现方式**，简单接入，功能强大
 
 ## 原理图
 ![](https://s1.ax1x.com/2018/08/11/PcVtbj.jpg)
 
 ## 目录&模块
-* Central_server 为**用户中心服务器CUS**，管理用户核心资料和生态群用户状态监听、广播等事务，只需要运行于php-cli，配置好数据库即可轻松创建CUS进程
-* Client 为客户端文件，配备socket守护进程客户端和子系统函数库，子系统只需要加载函数库，运行守护进程，并配置关键数据表就可轻松接入SOCSSO
-* SOCSSO—EasiPanel 为SOCSSO控制面板，under construction
+> **SOCSSO(SSOC)包含四大模块，包括CUS、Client、接口函数库与EasiPanel**
+* Central_server 为用户中心服务器**CUS模块**，管理用户核心资料和生态群用户状态监听、广播等事务，只需要运行于php-cli，配置好数据库即可轻松创建CUS进程
+* Client 为客户端**Client模块**文件，管理与CUS的通信和指令的处理，子系统只需要运行于php-cli并简易配置就可轻松接入SOCSSO
+* Interface_libraries 为各语言的**接口函数库模块**文件，为各子系统与SSOC的直接接口，提供了大量而具有普适性的接口函数
+* SOCSSO—EasiPanel 为SOCSSO控制面板**EasiPanel模块**，掌管SSOC的运行情况和用户的宏观调控
 
-## 运行必读
+## 接入&运行必读
+
+### 在开始之前，我希望你知道SOCSSO的原则性问题
+
 
 ### 必须先运行CUS中心服务器
 ```
 1. clone
 2. chmod 赋予目录权限
-3. 下载数据库结构文件，导入，并在Main.php填写必要信息
+3. 下载数据库结构文件，导入，并在Main.php中填写必要信息
 4. php Main.php 即可以守护进程方式运行，进程会自主维护
 5. 日志：生成在运行目录的CUS.log内
 ```
 
-### Client端的守护进程启动
+### Client端的启动
 ```
-
+1. clone
+2. chmod 赋予目录权限
+3. 在Main.php中填写必要信息
+4. php Main.php 即可以守护进程方式运行，进程会自主维护
+5. 日志：生成在运行目录的Client.log内
 ```
+**如果数据库文件不存在，Client端会自动创建**
 
 ### 加载函数库
 ```
-
+1. clone
+2. 打开文件，进行配置
+3. 复制该文件至相关文件夹，include/import并对其实例化即可调用
 ```
 
 ### 接入开发者只需要熟悉Client端的函数库用法
 * SOCSSO的接入开发者只需要调用函数库内的函数，即可对所有接入了SOCSSO的系统的用户数据统一操作，无需考虑实现方式  
-* 详细用法，请见WIKI
+* **详细用法，请见WIKI**
 
 ### SOCSSO_EasiPanel中心管理面板
 > SOCSSO_EasiPanel将SOCSSO的使用和易用度提升到另一个里程碑境界，该面板可以为运营者提供全览SOCSSO生态群系统运行状况的新入口并处理诸多意外情况，**SOCSSO_Panel运行在CUS端**
@@ -50,7 +62,7 @@
 ##### 计划中功能
 * CUS的运行、进程管理
 * SOCSSO系统运行状态
-* 用户状态的全览，微观调控，诊断异常
+* 用户状态的全览，宏观调控，诊断异常
 * 发送特定指令，解决意外情况
 
 ##### 处理紧急情况
@@ -67,12 +79,10 @@ SOCSSO保留了一个指令，可以在紧急错误时，对全网用户登录�
 
 
 ## 二次开发必读
-### SOCSSO实现原理
-CUS和Client皆配备守护进程，内置一个多线程计时器，以配置值轮询数据库的指令表，达到实时同步信息的效果  
-以后考虑采用线程间通信
 
 ### 后端间指令集[重要]
-“SOCSSO的指令集”可以理解为SOCSSO系统间数据接口，CUS和Client依靠于双方认同的指令集进行所有操作，指令集包括：
-* [用户状态增删改(登陆/注销/覆盖登陆/超时登出等)](http://dev.itrclub.com/LYJSpeedX/SOCSSO/wiki/%E6%8C%87%E4%BB%A4%E9%9B%86-%E7%94%A8%E6%88%B7%E7%8A%B6%E6%80%81%E7%9B%B8%E5%85%B3)
-* [用户信息增删改查](http://dev.itrclub.com/LYJSpeedX/SOCSSO/wiki/%E6%8C%87%E4%BB%A4%E9%9B%86-%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E7%9B%B8%E5%85%B3)  
-**必须仔细阅读，因为系统间不配备指令集的检验过程，非法的指令集将可能引发不可恢复的严重错误！**  
+“SOCSSO的指令集”可以理解为**SOCSSO模块间的间接口**，SSOC模块依靠于双方认同的指令集进行所有操作，指令集包括：
+* [CUS与Client用户状态增删改(登陆/注销/覆盖登陆/超时登出等)](http://dev.itrclub.com/LYJSpeedX/SOCSSO/wiki/%E6%8C%87%E4%BB%A4%E9%9B%86-%E7%94%A8%E6%88%B7%E7%8A%B6%E6%80%81%E7%9B%B8%E5%85%B3)
+* [CUS与Client用户信息增删改查](http://dev.itrclub.com/LYJSpeedX/SOCSSO/wiki/%E6%8C%87%E4%BB%A4%E9%9B%86-%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E7%9B%B8%E5%85%B3) 
+* [Client与接口函数库](http://dev.itrclub.com/LYJSpeedX/SOCSSO/wiki/%E6%8E%A5%E5%8F%A3%E5%87%BD%E6%95%B0%E5%BA%93%E6%8C%87%E4%BB%A4%E6%A0%BC%E5%BC%8F)
+* [EasiPanel与CUS]()
