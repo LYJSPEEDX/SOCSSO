@@ -15,7 +15,9 @@
 ![](https://s1.ax1x.com/2018/08/11/PcVtbj.jpg)
 
 ## 目录&模块
-> **SOCSSO(SSOC)包含四大模块，包括CUS、Client、接口函数库与EasiPanel**
+> **SOCSSO(SSOC)包含四大模块，包括CUS、Client、接口函数库与EasiPanel[基本介绍](http://dev.itrclub.com/LYJSpeedX/SOCSSO/wiki/%5BBefore+ALL%5DSOCSSO%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D)**
+
+
 * Central_server 为用户中心服务器**CUS模块**，管理用户核心资料和生态群用户状态监听、广播等事务，只需要运行于php-cli，配置好数据库即可轻松创建CUS进程
 * Client 为客户端**Client模块**文件，管理与CUS的通信和指令的处理，子系统只需要运行于php-cli并简易配置就可轻松接入SOCSSO
 * Interface_libraries 为各语言的**接口函数库模块**文件，为各子系统与SSOC的直接接口，提供了大量而具有普适性的接口函数
@@ -24,6 +26,7 @@
 ## 接入&运行必读
 
 ### 在开始之前，我希望你知道SOCSSO的原则性问题
+* **[请一定在尝试使用SOCSSO前阅读我](http://dev.itrclub.com/LYJSpeedX/SOCSSO/wiki/%5BBefore+ALL%5DSOCSSO%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D)**
 
 
 ### 必须先运行CUS中心服务器
@@ -52,7 +55,7 @@
 3. 复制该文件至相关文件夹，include/import并对其实例化即可调用
 ```
 
-### 接入开发者只需要熟悉Client端的函数库用法
+### 接入开发者只需要且必须熟悉Client端的函数库用法
 * SOCSSO的接入开发者只需要调用函数库内的函数，即可对所有接入了SOCSSO的系统的用户数据统一操作，无需考虑实现方式  
 * **详细用法，请见WIKI**
 
