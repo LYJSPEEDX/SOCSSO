@@ -14,6 +14,9 @@
 ## 原理图
 ![](https://s1.ax1x.com/2018/08/11/PcVtbj.jpg)
 
+如果你想知道原理，那你要看看WIKI  
+如果你只想尽快接入，那就往下看，照做就好了  
+
 ## 目录&模块
 > **SOCSSO(SSOC)包含四大模块，包括CUS、Client、接口函数库与EasiPanel[基本介绍](http://dev.itrclub.com/LYJSpeedX/SOCSSO/wiki/%5BBefore+ALL%5DSOCSSO%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D)**
 
