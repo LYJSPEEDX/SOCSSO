@@ -43,7 +43,7 @@
 
 ### Client端的启动
 ```
-1. clone
+1. clone  
 2. chmod 赋予目录权限
 3. 在Main.php中填写必要信息
 4. php Main.php 即可以守护进程方式运行，进程会自主维护
@@ -53,14 +53,14 @@
 
 ### 加载函数库
 ```
-1. clone
+1. clone  
 2. 打开文件，进行配置
 3. 复制该文件至相关文件夹，include/import并对其实例化即可调用
 ```
 
 ### 接入开发者只需要且必须熟悉Client端的函数库用法
 * SOCSSO的接入开发者只需要调用函数库内的函数，即可对所有接入了SOCSSO的系统的用户数据统一操作，无需考虑实现方式  
-* **详细用法，请见WIKI**
+* **详细用法，[请见WIKI](http://dev.itrclub.com/LYJSpeedX/SOCSSO/wiki/1+%E2%98%85+%5BBefore+ALL%5DSOCSSO%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D#%E6%8E%A5%E5%8F%A3%E5%87%BD%E6%95%B0%E5%BA%93%E6%96%87%E6%A1%A3%E7%9B%AE%E5%BD%95)**
 
 ### SOCSSO_EasiPanel中心管理面板
 > SOCSSO_EasiPanel将SOCSSO的使用和易用度提升到另一个里程碑境界，该面板可以为运营者提供全览SOCSSO生态群系统运行状况的新入口并处理诸多意外情况，**SOCSSO_Panel运行在CUS端**
