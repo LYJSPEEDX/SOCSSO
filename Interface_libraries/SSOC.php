@@ -31,14 +31,15 @@ define("CONFIG",[
 //快速调试
 $ssoc = new SSOC();
 //var_dump($ssoc -> is_login('jun'));
-//var_dump($ssoc -> login('jun','88d55ad283aa400af464c76d713c07ad'));
-//var_dump($ssoc -> get_userinfo_all('1',true,'uid'));
+//var_dump($ssoc -> login('hello','88888888888888888888888888888888'));
+//var_dump($ssoc -> get_userinfo_all('hello'));
 //var_dump($ssoc -> get_userinfo('1','options',true,'uid'));
-//var_dump($ssoc -> logout('jun'));
+//var_dump($ssoc -> logout('hello'));
 //var_dump($ssoc -> logout('1','uid'));
 //var_dump($ssoc -> edit_userinfo('jum','nickname',["nickname" => "he"]));
 //var_dump($ssoc -> edit_userinfo('jun','password',["ex_password" => "88d55ad283aa400af464c76d713c07ad","cur_password" => "25d55ad283aa400af464c76d713c07ad"]));
 //var_dump($ssoc -> auth('bf4c1ccec4cfe963b36a653e35b8408d'));
+//var_dump($ssoc -> register('TEST','88888888888888888888888888888888','SSOC','100',["phone" => "8893","hello" => true]));
 
 class SSOC{
 	/**
@@ -160,6 +161,48 @@ class SSOC{
 			if ($res != false) {
 				$this -> db -> exec("UPDATE sys SET value = '{$res['id']}' WHERE variables = 'last_callback_id'");
 				if ($res['result'] == 'logout_success'){
+					return true;
+				}else{							
+					return false;
+				}
+			}
+			//轮询次数+1
+			$time ++;
+			//循环延时
+			usleep((CONFIG['polling_time'] * 1000));
+		}
+	}
+
+	/**
+	* 注册指令构造函数
+	* @param string $username 
+	* @param string $password 32位md5小写密码
+	* @param string $nickname 昵称
+	* @param integer $credit 
+	* @param [array] $options 拓展存储
+	* @return boolean 登出结果,根据CUS的callback判断
+	**/
+	public function register($username,$password,$nickname,$credit,$options = []){
+		$task = json_encode(["type" => "register","username" => $username,"password" => $password ,"nickname" => $nickname,"credit" => $credit,"options" => $options],JSON_FORCE_OBJECT);
+		$this -> db -> exec("INSERT INTO task_queue (task) VALUES ('{$task}')");
+		//开始轮询
+		$ex_id = $this -> db -> query("SELECT value FROM sys WHERE variables = 'last_callback_id'");
+		$ex_id = $ex_id -> fetchColumn();
+		//准备进入循环
+		$time = 0;
+		$finish = false;
+		while (!$finish){
+			//超时失败
+			if ($time >= CONFIG['max_time']) {
+				return false;
+			}
+			//寻找callback指令
+			$res = $this -> db -> query("SELECT * FROM task_callback WHERE id > '{$ex_id}' AND username = '{$username}' AND SUBSTR(result,1,8) = 'register'");
+			$res = $res -> fetch(PDO::FETCH_ASSOC);
+			//找到目标callback,分析result
+			if ($res != false) {
+				$this -> db -> exec("UPDATE sys SET value = '{$res['id']}' WHERE variables = 'last_callback_id'");
+				if ($res['result'] == 'register_success'){
 					return true;
 				}else{							
 					return false;

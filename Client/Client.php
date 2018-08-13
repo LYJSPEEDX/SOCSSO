@@ -78,7 +78,7 @@ abstract class Client{
 	* @param array $task 解码后的json指令
 	**/
 	function token_add($task){
-		$json_options = json_encode($task['options']);
+		$json_options = json_encode($task['options'],JSON_FORCE_OBJECT);
 		$this -> db -> exec("INSERT INTO user (uid,token,username,nickname,credit,create_time,update_time,last_login,options) VALUES ('{$task['uid']}','{$task['cur_token']}','{$task['username']}','{$task['nickname']}','{$task['credit']}','{$task['create_time']}','{$task['update_time']}','{$task['last_login']}','{$json_options}')");
 	}
 
@@ -103,7 +103,7 @@ abstract class Client{
 	* @param array $task 解码后的json指令
 	**/
 	function register($task){
-		if (!($this ->is_json(json_encode($task))) || !isset($task['username']) || !isset($task['nickname']) || !isset($task['password']) || !isset($task['credit']) || !isset($task['options'])){
+		if (!isset($task['username']) || !isset($task['nickname']) || !isset($task['password']) || !isset($task['credit']) || !isset($task['options'])){
 			$task['result'] = 'register_fail';
 			$task['data'] = 'syntax_error';
 			$this -> callback_handle($task);
