@@ -6,10 +6,10 @@
  **/
 class Socket extends CUS{
 
-	function __construct($config){
-		$this -> log_info('[CUS]开始初始化,开放端口:'.$config['socketport']);
+	function __construct(){
+		$this -> log_info('[CUS]开始初始化,开放端口:'.CONFIG['socketport']);
 		
-		$this -> pipe = new swoole_server("127.0.0.1", $config['socketport']); 
+		$this -> pipe = new swoole_server("127.0.0.1", CONFIG['socketport']); 
 		$this -> pipe -> set([
 			'task_worker_num' => 3,
 			'worker_num' => 3,
@@ -44,8 +44,6 @@ class Socket extends CUS{
 		
 		// worker|task 进程启动回调
 		$this -> pipe -> on('WorkerStart',function($server,$worker_id){
-			global $argv;
-			global $config;
 			$pid = posix_getpid();
 			if($worker_id >= $this -> pipe ->setting['worker_num']) {
 				$this -> log_info("[CUS]TaskWorker任务进程[ID:{$worker_id},pid:{$pid}]创建");
@@ -54,7 +52,7 @@ class Socket extends CUS{
 			}
 			//在每个进程开始,创建其数据库连接
 			try{
-				$this -> db = new PDO("mysql:host={$config['dbhost']};dbname={$config['dbname']}", $config['dbusername'], $config['dbpassword'],[PDO::ATTR_PERSISTENT => true,PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+				$this -> db = new PDO("mysql:host=".CONFIG['dbhost'].';dbname='.CONFIG['dbname'], CONFIG['dbusername'], CONFIG['dbpassword'],[PDO::ATTR_PERSISTENT => true,PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 			}catch (PDOException $e) {
 				$this -> log_error('[CUS子进程]数据库连接失败,SHUTDOWN服务器:' . $e->getMessage());
 				$shutdown = true;
@@ -64,8 +62,8 @@ class Socket extends CUS{
 			}
 			//设定外部轮询定时器
 			if($shutdown != true && $worker_id == 0 ){
-				$this -> pipe -> tick(1000,function($timer_id){
-					$this -> ph = new Polling_handler($this -> db,$this -> pipe);
+				$this -> ph = new Polling_handler($this -> db,$this -> pipe);
+				$this -> pipe -> tick(CONFIG['polling_time'],function($timer_id){
 					$this -> ph -> query_task();
 				});
 			}

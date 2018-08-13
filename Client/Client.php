@@ -14,7 +14,7 @@ abstract class Client{
 	 **/
 	function is_json($string) {
 		json_decode($string);
-		if (json_last_error() != JSON_ERROR_NONE) $this -> log_error('[JSON检验失败]'.json_last_error().':'.$string);
+		if (json_last_error() != JSON_ERROR_NONE) $this -> log_error('[JSON检验失败]'.json_last_error_msg().':'.$string);
 		return (json_last_error() == JSON_ERROR_NONE);
 	}
 
@@ -79,7 +79,7 @@ abstract class Client{
 	**/
 	function token_add($task){
 		$json_options = json_encode($task['options']);
-		$this -> db -> exec("INSERT INTO user (token,username,nickname,credit,create_time,update_time,last_login,options) VALUES ('{$task['cur_token']}','{$task['username']}','{$task['nickname']}','{$task['credit']}','{$task['create_time']}','{$task['update_time']}','{$task['last_login']}','{$json_options}')");
+		$this -> db -> exec("INSERT INTO user (uid,token,username,nickname,credit,create_time,update_time,last_login,options) VALUES ('{$task['uid']}','{$task['cur_token']}','{$task['username']}','{$task['nickname']}','{$task['credit']}','{$task['create_time']}','{$task['update_time']}','{$task['last_login']}','{$json_options}')");
 	}
 
 	/**
@@ -210,8 +210,9 @@ abstract class Client{
 	* @param array $task 解码后的json指令
 	**/
 	function get_userinfo_all($task){
-		if (!isset($task['username'])){
+		if (!isset($task['username']) && !isset($task['uid'])){
 			$task['result'] = 'get_userinfo_all_fail';
+			if (!isset($task['username'])) $task['username'] = $task['uid'];
 			$this -> callback_handle($task);
 			$this -> log_error("[Polling_handler]捕捉到指令格式错误,废弃指令,详情:".print_r($task,true));
 			return false;
