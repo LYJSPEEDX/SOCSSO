@@ -9,7 +9,7 @@
 
 //函数库基本配置
 define("CONFIG",[
-	//sqlite缓存数据库文件路径,必须为已创建的数据库文件,注意权限
+	//ssqlite缓存数据库文件路径,必须为已创建的数据库文件,必须和Client内的配置相同
 	"sqlite_db_path" => "../Client/SSOC_CLIENT_TEMP.db",
 	//轮询回调时间间隔(ms)
 	"polling_time" => 100,
@@ -28,7 +28,7 @@ define("CONFIG",[
 	"default_identifier" => "username"
 ]);  
 
-//调试
+//快速调试
 $ssoc = new SSOC();
 //var_dump($ssoc -> is_login('jun'));
 //var_dump($ssoc -> login('jun','88d55ad283aa400af464c76d713c07ad'));
@@ -37,7 +37,8 @@ $ssoc = new SSOC();
 //var_dump($ssoc -> logout('jun'));
 //var_dump($ssoc -> logout('1','uid'));
 //var_dump($ssoc -> edit_userinfo('jum','nickname',["nickname" => "he"]));
-var_dump($ssoc -> edit_userinfo('jun','password',["ex_password" => "88d55ad283aa400af464c76d713c07ad","cur_password" => "25d55ad283aa400af464c76d713c07ad"]));
+//var_dump($ssoc -> edit_userinfo('jun','password',["ex_password" => "88d55ad283aa400af464c76d713c07ad","cur_password" => "25d55ad283aa400af464c76d713c07ad"]));
+//var_dump($ssoc -> auth('bf4c1ccec4cfe963b36a653e35b8408d'));
 
 class SSOC{
 	/**
@@ -55,7 +56,23 @@ class SSOC{
 	}
 
 	/**
-	* 用户鉴权,判断是否已登入
+	* 经典通过token鉴权,判断是否登录
+	* @param string $token 
+	* @return boolean 若已登入,返回true,反之false
+	**/
+	public function auth($token){
+		$res = $this -> db -> query("SELECT COUNT(*) FROM user WHERE token = '{$token}'");
+		$res = $res -> fetchColumn();
+		if ($res > 0) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	* 使用用户标识鉴权,判断是否已登入,这种鉴权方法不需要获取到cookie的token，不适用于安全环境
+	* 但子系统可以通过这一函数知道该用户在全生态群的状态
 	* @param string $user_param username/uid类型
 	* @param [string] $type=CONFIG['default_identifier'] 用户标识类型
 	* @return boolean 若已登入,返回true,反之false
