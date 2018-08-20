@@ -31,10 +31,10 @@ define("CONFIG",[
 //快速调试
 $ssoc = new SSOC();
 //var_dump($ssoc -> is_login('jun'));
-//var_dump($ssoc -> login('hello','88888888888888888888888888888888'));
+//var_dump($ssoc -> login('jun','25d55ad283aa400af464c76d713c07ad'));
 //var_dump($ssoc -> get_userinfo_all('hello'));
 //var_dump($ssoc -> get_userinfo('1','options',true,'uid'));
-//var_dump($ssoc -> logout('hello'));
+var_dump($ssoc -> logout('jun'));
 //var_dump($ssoc -> logout('1','uid'));
 //var_dump($ssoc -> edit_userinfo('jum','nickname',["nickname" => "he"]));
 //var_dump($ssoc -> edit_userinfo('jun','password',["ex_password" => "88d55ad283aa400af464c76d713c07ad","cur_password" => "25d55ad283aa400af464c76d713c07ad"]));

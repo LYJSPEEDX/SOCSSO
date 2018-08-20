@@ -32,6 +32,13 @@ class Polling_handler extends Client{
 			}
 			$task = json_decode($task_queue[$x]['task'],true);
 			$call_function = $task['type'];
+			if (!(method_exists($this,$call_function))) {
+					$task['result'] = $task['type'].'_fail';
+					$task['data'] = 'undefined_task';
+					$this -> callback_handle($task);
+					$this -> log_error("[Polling_handler]捕捉到指令格式错误[指令不存在],废弃指令".print_r($task,true));
+					return false;
+				}
 			$this -> log_info("[Polling_handler]处理指令,调用:{$call_function}");
 			$this -> $call_function($task);
 		}

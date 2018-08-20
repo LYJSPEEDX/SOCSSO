@@ -103,7 +103,7 @@ abstract class Client{
 	* @param array $task 解码后的json指令
 	**/
 	function register($task){
-		if (!isset($task['username']) || !isset($task['nickname']) || !isset($task['password']) || !isset($task['credit']) || !isset($task['options'])){
+		if (!isset($task['username']) || !isset($task['nickname']) || !isset($task['password']) || strlen($task['password']) != 32 || !isset($task['credit']) || !isset($task['options'])){
 			$task['result'] = 'register_fail';
 			$task['data'] = 'syntax_error';
 			$this -> callback_handle($task);
