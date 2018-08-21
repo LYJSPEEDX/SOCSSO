@@ -177,7 +177,7 @@ abstract class Client{
 				return false;
 			}
 
-		$data = json_encode($task);
+		$data = json_encode($task,JSON_FORCE_OBJECT);
 		$this -> send($data);
 	}
 

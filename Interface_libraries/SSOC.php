@@ -2,7 +2,7 @@
 /**
  * SOCSSO PHP接口函数库
  * 该函数库不使用任何非原生实现方法,可放心使用
- * @version V1.0_Dev
+ * @version V1.1
  * @link http://dev.itrclub.com/LYJSpeedX/SOCSSO 接入前务必通读文档,规避风险
  * @author	Jan.F@隽
  **/
@@ -34,7 +34,7 @@ $ssoc = new SSOC();
 //var_dump($ssoc -> login('jun','25d55ad283aa400af464c76d713c07ad'));
 //var_dump($ssoc -> get_userinfo_all('hello'));
 //var_dump($ssoc -> get_userinfo('1','options',true,'uid'));
-var_dump($ssoc -> logout('jun'));
+//var_dump($ssoc -> logout('jun'));
 //var_dump($ssoc -> logout('1','uid'));
 //var_dump($ssoc -> edit_userinfo('jum','nickname',["nickname" => "he"]));
 //var_dump($ssoc -> edit_userinfo('jun','password',["ex_password" => "88d55ad283aa400af464c76d713c07ad","cur_password" => "25d55ad283aa400af464c76d713c07ad"]));
@@ -46,6 +46,8 @@ class SSOC{
 	* 这只是一个构造函数,创建独立的sqlite连接
 	**/
 	function __construct(){
+		date_default_timezone_set('Asia/Shanghai');
+
 		if (!file_exists(CONFIG['sqlite_db_path'])) throw new Exception("SQLite缓存数据库不存在,检查路径及Client运行情况!");
 		try{
 			$this -> db = new PDO('sqlite:'.CONFIG['sqlite_db_path']);
@@ -283,6 +285,7 @@ class SSOC{
 	public function get_userinfo($user_param,$column,$is_request=true,$type=CONFIG['default_identifier']){
 		$res = $this -> get_userinfo_all($user_param,$is_request,$type);
 		if ($res !=false){
+			if (!isset($res[$column])) return false;
 			return $res[$column];
 		}else{
 			return false;
