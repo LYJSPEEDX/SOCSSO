@@ -2,7 +2,7 @@
 /**
  * SOCSSO PHP接口函数库
  * 该函数库不使用任何非原生实现方法,可放心使用
- * @version V1.0_Dev
+ * @version V1.0_ITR_Branch
  * @link http://dev.itrclub.com/LYJSpeedX/SOCSSO 接入前务必通读文档,规避风险
  * @author	Jan.F@隽
  **/
@@ -34,18 +34,22 @@ $ssoc = new SSOC();
 //var_dump($ssoc -> login('jun','25d55ad283aa400af464c76d713c07ad'));
 //var_dump($ssoc -> get_userinfo_all('hello'));
 //var_dump($ssoc -> get_userinfo('1','options',true,'uid'));
-var_dump($ssoc -> logout('jun'));
+//var_dump($ssoc -> logout('jun'));
 //var_dump($ssoc -> logout('1','uid'));
-//var_dump($ssoc -> edit_userinfo('jum','nickname',["nickname" => "he"]));
+//var_dump($ssoc -> edit_userinfo('jun','nickname',["nickname" => "he"]));
 //var_dump($ssoc -> edit_userinfo('jun','password',["ex_password" => "88d55ad283aa400af464c76d713c07ad","cur_password" => "25d55ad283aa400af464c76d713c07ad"]));
 //var_dump($ssoc -> auth('bf4c1ccec4cfe963b36a653e35b8408d'));
 //var_dump($ssoc -> register('TEST','88888888888888888888888888888888','SSOC','100',["phone" => "8893","hello" => true]));
+//var_dump($ssoc -> edit_userinfo_credit('jun',230,'test233'));
+//var_dump($ssoc -> edit_userinfo('jun','options',['column' => 'phone','value' => '8888']));
 
 class SSOC{
 	/**
 	* 这只是一个构造函数,创建独立的sqlite连接
 	**/
 	function __construct(){
+		date_default_timezone_set('Asia/Shanghai');
+		
 		if (!file_exists(CONFIG['sqlite_db_path'])) throw new Exception("SQLite缓存数据库不存在,检查路径及Client运行情况!");
 		try{
 			$this -> db = new PDO('sqlite:'.CONFIG['sqlite_db_path']);
@@ -283,6 +287,7 @@ class SSOC{
 	public function get_userinfo($user_param,$column,$is_request=true,$type=CONFIG['default_identifier']){
 		$res = $this -> get_userinfo_all($user_param,$is_request,$type);
 		if ($res !=false){
+			if (!isset($res[$column])) return false;
 			return $res[$column];
 		}else{
 			return false;
@@ -354,5 +359,32 @@ class SSOC{
 			//循环延时
 			usleep((CONFIG['polling_time'] * 1000));
 		}
+	}
+
+	/**
+	* ITR分支函数-原因修改credit
+	* @param string $username 用户名
+	* @param integer $credit credit整型数值
+	* @param string $reason 原因
+	**/
+	public function edit_userinfo_credit($username,$credit,$reason){
+		$res = ($this -> edit_userinfo($username,'credit',['credit' => $credit],'username'));
+		if ($res) {
+			$res = ($this -> get_userinfo($username,'options',true,'username'));
+			if ($res !== false){
+				if (!isset($res['credit_log'])){
+					$res['credit_log'] = array ();
+				}
+				$reason = date('Y-m-d H:i:s',time()).' '.$reason;
+				$res['credit_log'][] = $reason;
+				$cur_credit_log = $res['credit_log'];
+				$res = ($this -> edit_userinfo($username,'options',['column' => 'credit_log' ,'value' => $cur_credit_log],'username'));
+				if ($res != false){
+					$res = true;
+				}
+			}
+		}
+
+		if ($res != true) return false; else return true;
 	}
 }

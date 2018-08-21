@@ -75,7 +75,7 @@ abstract class CUS{
 		//当$fd = 0 ,表示该任务是由人工创建的,无需发送回调
 		if ($fd != 0){
 			if (!isset($data)) $task = json_encode(["type" => "callback_handle","username" => $username,"result" => $result]);
-			if (isset($data)) $task = json_encode(["type" => "callback_handle","username" => $username,"result" => $result,"data" => $data]);
+			if (isset($data)) $task = json_encode(["type" => "callback_handle","username" => $username,"result" => $result,"data" => $data],JSON_FORCE_OBJECT);
 			$task = $task . "\r\n";
 			$this -> pipe -> send($fd,$task);
 			$this -> log_info("[回调]指令处理完成,发送给[$fd]客户端,内容:{$task}");
@@ -238,8 +238,8 @@ abstract class CUS{
 				$dboptions = json_decode($dboptions,true);
 
 				$dboptions[$task['data']['column']] = $task['data']['value'];
-				$send_task = json_encode(['type' => 'adjust_userinfo','username' => $task['username'],'attribute' => 'options','data' => ['column' => $task['data']['column'],'value' => $task['data']['value']]]);
-				$dboptions = json_encode($dboptions);
+				$send_task = json_encode(['type' => 'adjust_userinfo','username' => $task['username'],'attribute' => 'options','data' => ['column' => $task['data']['column'],'value' => $task['data']['value']]],JSON_FORCE_OBJECT);
+				$dboptions = json_encode($dboptions,JSON_FORCE_OBJECT);
 				$this -> db -> exec("UPDATE user SET options = '{$dboptions}' WHERE username = '{$task['username']}'");		
 				break;
 		}
