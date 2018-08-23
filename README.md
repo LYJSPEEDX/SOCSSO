@@ -18,7 +18,7 @@
 如果你只想尽快接入，那就往下看，照做就好了  
 
 ## 目录&模块
-> **SOCSSO(SSOC)包含四大模块，包括CUS、Client、接口函数库与EasiPanel[基本介绍](http://dev.itrclub.com/LYJSpeedX/SOCSSO/wiki/%5BBefore+ALL%5DSOCSSO%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D)**
+> **SOCSSO(SSOC)包含四大模块，包括CUS、Client、接口函数库与EasiPanel[基本介绍](http://)**
 
 
 * Central_server 为用户中心服务器**CUS模块**，管理用户核心资料和生态群用户状态监听、广播等事务，只需要运行于php-cli，配置好数据库即可轻松创建CUS进程
