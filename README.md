@@ -1,7 +1,7 @@
 # SOCSSO
-### A socket based SSO solution designed for ITRClub Tech ORG
+### A socket based SSO solution designed
 
-这是一款后端间基于socket通信的中心化指令集的异步实时SSO用户管理侧系统，为ITRClub技术集团开发
+这是一款后端间基于socket通信的中心化指令集的异步实时SSO用户管理侧系统
 
 ## 功能与特征
 * **统一生态群内所有系统的所有用户状态**(登陆/注销/覆盖登陆/超时登出等)
@@ -18,7 +18,7 @@
 如果你只想尽快接入，那就往下看，照做就好了  
 
 ## 目录&模块
-> **SOCSSO(SSOC)包含四大模块，包括CUS、Client、接口函数库与EasiPanel[基本介绍](http://)**
+> **SOCSSO(SSOC)包含四大模块，包括CUS、Client、接口函数库与EasiPanel[基本介绍](https://github.com/LYJSPEEDX/SOCSSO/wiki)**
 
 
 * Central_server 为用户中心服务器**CUS模块**，管理用户核心资料和生态群用户状态监听、广播等事务，只需要运行于php-cli，配置好数据库即可轻松创建CUS进程
